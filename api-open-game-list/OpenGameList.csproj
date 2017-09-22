@@ -10,6 +10,7 @@
     <Folder Include="Data\" />
     <Folder Include="Data\Items\" />
     <Folder Include="Data\Comments\" />
+    <Folder Include="Data\Users\" />
   </ItemGroup>
 
   <ItemGroup>
