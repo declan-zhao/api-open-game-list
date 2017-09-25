@@ -110,6 +110,27 @@ namespace OpenGameList.Controllers
             // Return HTTP Status 500 if the payload is invalid
             return new StatusCodeResult(500);
         }
+
+        /// <summary>
+        /// DELETE: api/items/{id}
+        /// </summary>
+        /// <returns>Delete an existing Item and return HTTP Status 200 when done.</returns>
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            var item = Context.Items.Where(i => i.Id == id).FirstOrDefault();
+            if (item != null)
+            {
+                // Remove the item to delete from the DbContext
+                Context.Items.Remove(item);
+                // Persist the change into the database
+                Context.SaveChanges();
+                // Return HTTP Status 200
+                return new OkResult();
+            }
+            // Return Not Found if we couldn't find the item
+            return NotFound(new { Error = $"Item ID {id} has not been found" });
+        }
         #endregion
 
         #region Attribute-based Routing
