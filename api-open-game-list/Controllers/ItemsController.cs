@@ -5,12 +5,27 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using OpenGameList.ViewModels;
 using Newtonsoft.Json;
+using OpenGameList.Data;
+using OpenGameList.Data.Items;
+using AutoMapper;
 
 namespace OpenGameList.Controllers
 {
     [Route("api/[controller]")]
     public class ItemsController : Controller
     {
+        #region Private Fields
+        private ApplicationDbContext Context;
+        #endregion Private Fields
+
+        #region Constructor
+        public ItemsController(ApplicationDbContext context)
+        {
+            // Dependency Injetion
+            Context = context;
+        }
+        #endregion Constructor
+
         #region RESTful Conventions
         /// <summary>
         /// GET: api/items
@@ -30,10 +45,8 @@ namespace OpenGameList.Controllers
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            return new JsonResult(GetSampleItems()
-            .Where(i => i.Id == id)
-            .FirstOrDefault(),
-            DefaultJsonSettings);
+            var item = Context.Items.Where(i => i.Id == id).FirstOrDefault();
+            return new JsonResult(Mapper.Map<ItemViewModel>(item), DefaultJsonSettings);
         }
         #endregion
 
@@ -58,9 +71,8 @@ namespace OpenGameList.Controllers
         public IActionResult GetLatest(int n)
         {
             if (n > MaxNumberOfItems) n = MaxNumberOfItems;
-            var items = GetSampleItems().OrderByDescending(i =>
-            i.CreatedDate).Take(n);
-            return new JsonResult(items, DefaultJsonSettings);
+            var items = Context.Items.OrderByDescending(i => i.CreatedDate).Take(n).ToArray();
+            return new JsonResult(ToItemViewModelList(items), DefaultJsonSettings);
         }
 
         /// <summary>
@@ -83,9 +95,8 @@ namespace OpenGameList.Controllers
         public IActionResult GetMostViewed(int n)
         {
             if (n > MaxNumberOfItems) n = MaxNumberOfItems;
-            var items = GetSampleItems().OrderByDescending(i =>
-            i.ViewCount).Take(n);
-            return new JsonResult(items, DefaultJsonSettings);
+            var items = Context.Items.OrderByDescending(i => i.ViewCount).Take(n).ToArray();
+            return new JsonResult(ToItemViewModelList(items), DefaultJsonSettings);
         }
 
         /// <summary>
@@ -108,34 +119,21 @@ namespace OpenGameList.Controllers
         public IActionResult GetRandom(int n)
         {
             if (n > MaxNumberOfItems) n = MaxNumberOfItems;
-            var items = GetSampleItems().OrderBy(i =>
-            Guid.NewGuid()).Take(n);
-            return new JsonResult(items, DefaultJsonSettings);
+            var items = Context.Items.OrderBy(i => Guid.NewGuid()).Take(n).ToArray();
+            return new JsonResult(ToItemViewModelList(items), DefaultJsonSettings);
         }
         #endregion
 
         #region Private Members
         /// <summary>
-        /// Generate a sample array of source Items to emulate a database (for testing purposes only).
+        /// Map a collection of Item entities into a list of ItemViewModel objects.
         /// </summary>
-        /// <param name="num">The number of items to generate: default is 999</param>
-        /// <returns>a defined number of mock items (for testing purpose only).</returns>
-        private List<ItemViewModel> GetSampleItems(int num = 999)
+        /// <param name="items">An IEnumerable collection of item entities</param>
+        /// <returns>a mapped list of ItemViewModel objects</returns>
+        private List<ItemViewModel> ToItemViewModelList(IEnumerable<Item> items)
         {
-            List<ItemViewModel> lst = new List<ItemViewModel>();
-            DateTime date = new DateTime(2015, 12, 31).AddDays(-num);
-            for (int id = 1; id <= num; id++)
-            {
-                lst.Add(new ItemViewModel()
-                {
-                    Id = id,
-                    Title = $"Item {id} Title",
-                    Description = $"This is a sample description for item {id}: Lorem ipsum dolor sit amet.",
-                    CreatedDate = date.AddDays(id),
-                    LastModifiedDate = date.AddDays(id),
-                    ViewCount = num - id
-                });
-            }
+            var lst = new List<ItemViewModel>();
+            foreach (var i in items) lst.Add(Mapper.Map<ItemViewModel>(i));
             return lst;
         }
 
