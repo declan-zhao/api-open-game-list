@@ -46,7 +46,34 @@ namespace OpenGameList.Controllers
         public IActionResult Get(int id)
         {
             var item = Context.Items.Where(i => i.Id == id).FirstOrDefault();
-            return new JsonResult(Mapper.Map<ItemViewModel>(item), DefaultJsonSettings);
+            if (item != null) return new JsonResult(Mapper.Map<ItemViewModel>(item), DefaultJsonSettings);
+            return NotFound(new { Error = $"Item ID {id} has not been found" });
+        }
+
+        /// <summary>
+        /// POST: api/items
+        /// </summary>
+        /// <returns>Create a new Item and return it accordingly.</returns>
+        [HttpPost()]
+        public IActionResult Add([FromBody]ItemViewModel ivm)
+        {
+            if (ivm != null)
+            {
+                // Create a new Item with the client-sent JSON data
+                var item = Mapper.Map<Item>(ivm);
+                // Override any property that could be wise to set from server-side only
+                item.CreatedDate = item.LastModifiedDate = DateTime.Now;
+                // TODO: replace the following with the current user's id when authentication will be available
+                item.UserId = Context.Users.Where(u => u.UserName == "Admin").FirstOrDefault().Id;
+                // Add the new item
+                Context.Items.Add(item);
+                // Persist the change into the database
+                Context.SaveChanges();
+                // Return the newly-created Item to the client
+                return new JsonResult(Mapper.Map<ItemViewModel>(item), DefaultJsonSettings);
+            }
+            // Return HTTP Status 500 if the payload is invalid
+            return new StatusCodeResult(500);
         }
         #endregion
 
