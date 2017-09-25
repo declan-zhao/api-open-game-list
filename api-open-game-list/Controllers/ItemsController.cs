@@ -75,6 +75,41 @@ namespace OpenGameList.Controllers
             // Return HTTP Status 500 if the payload is invalid
             return new StatusCodeResult(500);
         }
+
+        /// <summary>
+        /// PUT: api/items/{id}
+        /// </summary>
+        /// <returns>Update an existing Item and return it accordingly.</returns>
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, [FromBody]ItemViewModel ivm)
+        {
+            if (ivm != null)
+            {
+                var item = Context.Items.Where(i => i.Id == id).FirstOrDefault();
+                if (item != null)
+                {
+                    // Handle update
+                    item.UserId = ivm.UserId;
+                    item.Description = ivm.Description;
+                    item.Flags = ivm.Flags;
+                    item.Notes = ivm.Notes;
+                    item.Text = ivm.Text;
+                    item.Title = ivm.Title;
+                    item.Type = ivm.Type;
+
+                    // Override any property that could be wise to set from server-side only
+                    item.LastModifiedDate = DateTime.Now;
+                    // Persist the change into the database
+                    Context.SaveChanges();
+                    // Return the updated Item to the client
+                    return new JsonResult(Mapper.Map<ItemViewModel>(item), DefaultJsonSettings);
+                }
+                // Return Not Found if we couldn't find the item
+                return NotFound(new { Error = $"Item ID {id} has not been found" });
+            }
+            // Return HTTP Status 500 if the payload is invalid
+            return new StatusCodeResult(500);
+        }
         #endregion
 
         #region Attribute-based Routing
