@@ -10,6 +10,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using OpenGameList.Data;
+using AutoMapper;
+using OpenGameList.Data.Items;
+using OpenGameList.ViewModels;
 
 namespace OpenGameList
 {
@@ -39,6 +42,11 @@ namespace OpenGameList
             }
 
             app.UseMvc();
+
+            Mapper.Initialize(cfg =>
+            {
+                cfg.CreateMap<Item, ItemViewModel>();
+            });
         }
     }
 }
