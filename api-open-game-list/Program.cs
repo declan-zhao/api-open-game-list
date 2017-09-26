@@ -5,10 +5,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenGameList.Data;
+using OpenGameList.Data.Users;
 
 namespace OpenGameList
 {
@@ -24,7 +26,10 @@ namespace OpenGameList
                 try
                 {
                     var context = services.GetRequiredService<ApplicationDbContext>();
-                    DbSeeder.Seed(context);
+                    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+
+                    DbSeeder.SeedAsync(context, roleManager, userManager).Wait();
                 }
                 catch (Exception ex)
                 {

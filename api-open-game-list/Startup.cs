@@ -13,6 +13,9 @@ using OpenGameList.Data;
 using AutoMapper;
 using OpenGameList.Data.Items;
 using OpenGameList.ViewModels;
+using OpenGameList.Data.Users;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace OpenGameList
 {
@@ -30,6 +33,20 @@ namespace OpenGameList
         {
             services.AddMvc();
 
+            // Add Identity Services & Stores
+            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+                options.Password.RequireNonAlphanumeric = false;
+            })
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            });
+
             services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(Configuration["Data:ConnectionString:Default"]));
         }
 
@@ -42,6 +59,8 @@ namespace OpenGameList
             }
 
             app.UseMvc();
+
+            app.UseAuthentication();
 
             Mapper.Initialize(cfg =>
             {
