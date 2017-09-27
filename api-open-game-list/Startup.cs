@@ -58,9 +58,9 @@ namespace OpenGameList
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseMvc();
-
             app.UseAuthentication();
+
+            app.UseMvc();
 
             Mapper.Initialize(cfg =>
             {
