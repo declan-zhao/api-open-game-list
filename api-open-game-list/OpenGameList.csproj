@@ -11,6 +11,7 @@
     <Folder Include="Data\Items\" />
     <Folder Include="Data\Comments\" />
     <Folder Include="Data\Users\" />
+    <Folder Include="Classes\" />
   </ItemGroup>
 
   <ItemGroup>
