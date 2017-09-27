@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using OpenGameList.Data;
 using OpenGameList.Data.Items;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OpenGameList.Controllers
 {
@@ -55,6 +56,7 @@ namespace OpenGameList.Controllers
         /// </summary>
         /// <returns>Create a new Item and return it accordingly.</returns>
         [HttpPost()]
+        [Authorize]
         public IActionResult Add([FromBody]ItemViewModel ivm)
         {
             if (ivm != null)
@@ -81,6 +83,7 @@ namespace OpenGameList.Controllers
         /// </summary>
         /// <returns>Update an existing Item and return it accordingly.</returns>
         [HttpPut("{id}")]
+        [Authorize]
         public IActionResult Update(int id, [FromBody]ItemViewModel ivm)
         {
             if (ivm != null)
@@ -116,6 +119,7 @@ namespace OpenGameList.Controllers
         /// </summary>
         /// <returns>Delete an existing Item and return HTTP Status 200 when done.</returns>
         [HttpDelete("{id}")]
+        [Authorize]
         public IActionResult Delete(int id)
         {
             var item = Context.Items.Where(i => i.Id == id).FirstOrDefault();
