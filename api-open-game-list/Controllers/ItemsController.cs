@@ -9,6 +9,7 @@ using OpenGameList.Data;
 using OpenGameList.Data.Items;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace OpenGameList.Controllers
 {
@@ -65,8 +66,7 @@ namespace OpenGameList.Controllers
                 var item = Mapper.Map<Item>(ivm);
                 // Override any property that could be wise to set from server-side only
                 item.CreatedDate = item.LastModifiedDate = DateTime.Now;
-                // TODO: replace the following with the current user's id when authentication will be available
-                item.UserId = Context.Users.Where(u => u.UserName == "Admin").FirstOrDefault().Id;
+                item.UserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
                 // Add the new item
                 Context.Items.Add(item);
                 // Persist the change into the database
