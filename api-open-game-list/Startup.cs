@@ -16,6 +16,8 @@ using OpenGameList.ViewModels;
 using OpenGameList.Data.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using OpenGameList.Classes;
+using Microsoft.IdentityModel.Tokens;
 
 namespace OpenGameList
 {
@@ -42,9 +44,23 @@ namespace OpenGameList
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
+            // https://github.com/aspnet/Security/blob/dev/samples/JwtBearerSample/Startup.cs#L51
             services.AddAuthentication(options =>
             {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(o =>
+            {
+                o.RequireHttpsMetadata = false;
+                o.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    IssuerSigningKey = JwtProvider.SecurityKey,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = JwtProvider.Issuer,
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
             });
 
             services.AddDbContextPool<ApplicationDbContext>(options => options.UseNpgsql(Configuration["Data:ConnectionString:Default"]));
@@ -57,6 +73,8 @@ namespace OpenGameList
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            // app.UseJwtProvider();
 
             app.UseAuthentication();
 
