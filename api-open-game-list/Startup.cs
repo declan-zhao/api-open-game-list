@@ -47,7 +47,7 @@ namespace OpenGameList
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             });
 
-            services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(Configuration["Data:ConnectionString:Default"]));
+            services.AddDbContextPool<ApplicationDbContext>(options => options.UseNpgsql(Configuration["Data:ConnectionString:Default"]));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
