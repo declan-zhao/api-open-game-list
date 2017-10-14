@@ -1,0 +1,23 @@
+version: "3.3"
+services:
+    web:
+        container_name: api-open-game-list
+        context: .
+        dockerfile: Dockerfile
+        ports:
+            - "5001:80"
+        depends_on:
+            - db
+    db:
+        container_name: postgres-api-open-game-list
+        image: postgres
+        restart: always
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+        ports:
+            - "5432:5432"
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+    volumes:
+        pgdata:
